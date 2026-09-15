@@ -1,2 +1,8 @@
 skills/
 node_modules/
+.next/
+.open-next/
+*.tsbuildinfo
+.env
+.env.local
+.env.*.local
