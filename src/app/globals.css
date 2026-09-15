@@ -1,0 +1,434 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ------------------------------------------------------------------ */
+/* Font: Noto Sans Bengali (variable) — covers Bangla + Latin scripts  */
+/* ------------------------------------------------------------------ */
+@font-face {
+  font-family: "Noto Sans Bengali";
+  src: url("/fonts/NotoSansBengali-Variable.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ------------------------------------------------------------------ */
+/* Google Material Symbols Outlined (variable) — self-hosted.         */
+/* v0.14 icon system: single static color (currentColor), no emoji,   */
+/* no multi-color chips. Sized via font-size (MIcon `size` prop).      */
+/* ------------------------------------------------------------------ */
+@font-face {
+  font-family: "Material Symbols Outlined";
+  src: url("/fonts/material-symbols-outlined.woff2") format("woff2");
+  font-weight: 100 700;
+  font-style: normal;
+  font-display: block;
+}
+
+@layer utilities {
+  .ms-icon {
+    font-family: "Material Symbols Outlined";
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-feature-settings: "liga";
+    -webkit-font-smoothing: antialiased;
+    font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+    user-select: none;
+  }
+  /* The glyph name lives in generated content, NOT in the DOM text —
+     keeps textContent clean (e2e selectors, find-in-page, copy/paste). */
+  .ms-icon::before {
+    content: attr(data-icon);
+  }
+  .ms-icon-fill {
+    font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 24;
+  }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: "Noto Sans Bengali", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", monospace;
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  /* Semantic status colors (fleet states, reminders) */
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-danger: var(--danger);
+  --color-danger-foreground: var(--danger-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@theme {
+  /* v0.13 premium motion kit */
+  --animate-rise: gk-rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-scale-in: gk-scale-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-float: gk-float 8s ease-in-out infinite;
+  --animate-aurora-pan: gk-aurora-pan 18s ease-in-out infinite alternate;
+  @keyframes gk-rise {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes gk-scale-in {
+    from { opacity: 0; transform: scale(0.94); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  @keyframes gk-float {
+    0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+    50% { transform: translate3d(0, -12px, 0) scale(1.03); }
+  }
+  @keyframes gk-aurora-pan {
+    from { transform: translate3d(-3%, -2%, 0) scale(1); }
+    to { transform: translate3d(3%, 2%, 0) scale(1.08); }
+  }
+}
+
+:root {
+  --radius: 0.875rem;
+  /* Warm neutral canvas */
+  --background: oklch(0.984 0.004 95);
+  --foreground: oklch(0.21 0.01 100);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.21 0.01 100);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.21 0.01 100);
+  /* Deep emerald primary — money / growth / Bangladesh */
+  --primary: oklch(0.52 0.115 163);
+  --primary-foreground: oklch(0.985 0.01 95);
+  --secondary: oklch(0.955 0.01 95);
+  --secondary-foreground: oklch(0.33 0.02 100);
+  --muted: oklch(0.955 0.008 95);
+  --muted-foreground: oklch(0.50 0.015 95);
+  --accent: oklch(0.94 0.03 160);
+  --accent-foreground: oklch(0.35 0.08 163);
+  --destructive: oklch(0.577 0.215 22);
+  --destructive-foreground: oklch(0.985 0 0);
+  --border: oklch(0.9 0.008 95);
+  --input: oklch(0.9 0.008 95);
+  --ring: oklch(0.52 0.115 163);
+  /* Status palette */
+  --success: oklch(0.55 0.12 155);
+  --success-foreground: oklch(0.985 0.01 95);
+  --warning: oklch(0.72 0.15 70);
+  --warning-foreground: oklch(0.27 0.06 70);
+  --danger: oklch(0.55 0.19 25);
+  --danger-foreground: oklch(0.985 0 0);
+  --info: oklch(0.6 0.09 200);
+  --info-foreground: oklch(0.985 0 0);
+  /* Charts */
+  --chart-1: oklch(0.55 0.12 163);
+  --chart-2: oklch(0.72 0.15 70);
+  --chart-3: oklch(0.5 0.09 200);
+  --chart-4: oklch(0.55 0.19 25);
+  --chart-5: oklch(0.75 0.1 95);
+  /* Premium dark-green desktop sidebar */
+  --sidebar: oklch(0.23 0.03 165);
+  --sidebar-foreground: oklch(0.93 0.01 95);
+  --sidebar-primary: oklch(0.72 0.13 163);
+  --sidebar-primary-foreground: oklch(0.16 0.03 165);
+  --sidebar-accent: oklch(0.28 0.035 165);
+  --sidebar-accent-foreground: oklch(0.97 0.01 95);
+  --sidebar-border: oklch(0.32 0.03 165);
+  --sidebar-ring: oklch(0.6 0.11 163);
+}
+
+.dark {
+  --background: oklch(0.148 0.014 165);
+  --foreground: oklch(0.94 0.01 95);
+  --card: oklch(0.198 0.017 165);
+  --card-foreground: oklch(0.94 0.01 95);
+  --popover: oklch(0.215 0.017 165);
+  --popover-foreground: oklch(0.94 0.01 95);
+  --primary: oklch(0.72 0.13 163);
+  --primary-foreground: oklch(0.16 0.03 165);
+  --secondary: oklch(0.26 0.02 165);
+  --secondary-foreground: oklch(0.94 0.01 95);
+  --muted: oklch(0.25 0.02 165);
+  --muted-foreground: oklch(0.68 0.015 95);
+  --accent: oklch(0.3 0.04 163);
+  --accent-foreground: oklch(0.9 0.06 163);
+  --destructive: oklch(0.65 0.18 22);
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.6 0.11 163);
+  --success: oklch(0.65 0.12 155);
+  --success-foreground: oklch(0.15 0.02 155);
+  --warning: oklch(0.75 0.14 70);
+  --warning-foreground: oklch(0.25 0.06 70);
+  --danger: oklch(0.70 0.155 25);
+  --danger-foreground: oklch(0.98 0 0);
+  --info: oklch(0.68 0.09 200);
+  --info-foreground: oklch(0.15 0.02 200);
+  --chart-1: oklch(0.72 0.13 163);
+  --chart-2: oklch(0.75 0.14 70);
+  --chart-3: oklch(0.68 0.09 200);
+  --chart-4: oklch(0.65 0.17 25);
+  --chart-5: oklch(0.8 0.08 95);
+  --sidebar: oklch(0.183 0.02 165);
+  --sidebar-foreground: oklch(0.93 0.01 95);
+  --sidebar-primary: oklch(0.72 0.13 163);
+  --sidebar-primary-foreground: oklch(0.16 0.03 165);
+  --sidebar-accent: oklch(0.26 0.03 165);
+  --sidebar-accent-foreground: oklch(0.97 0.01 95);
+  --sidebar-border: oklch(0.3 0.03 165);
+  --sidebar-ring: oklch(0.6 0.11 163);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "tnum" 1;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  ::selection {
+    background: oklch(0.52 0.115 163 / 0.22);
+  }
+  /* Comfortable touch targets everywhere */
+  button,
+  [role="button"],
+  a,
+  input,
+  select,
+  textarea {
+    touch-action: manipulation;
+  }
+}
+
+@layer utilities {
+  /* iOS safe areas for bottom navigation / sheets */
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .mb-safe {
+    margin-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .pt-safe {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+  .bottom-safe-0 {
+    bottom: calc(env(safe-area-inset-bottom, 0px));
+  }
+  /* Money & numbers always align */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+  /* Horizontal chip rows (filters) — no ugly scrollbar */
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  /* Custom scrollbar for long lists */
+  .nice-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: oklch(0.75 0.02 95) transparent;
+  }
+  .nice-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+  .nice-scrollbar::-webkit-scrollbar-thumb {
+    background: oklch(0.75 0.02 95);
+    border-radius: 3px;
+  }
+  .nice-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .dark .nice-scrollbar {
+    scrollbar-color: oklch(0.4 0.02 165) transparent;
+  }
+  .dark .nice-scrollbar::-webkit-scrollbar-thumb {
+    background: oklch(0.4 0.02 165);
+  }
+}
+
+/* ============================================================
+   v0.13 — PREMIUM SAAS KIT
+   Layered shadows · aurora meshes · glass · gradients
+   ============================================================ */
+
+@utility shadow-soft {
+  box-shadow:
+    0 1px 2px oklch(0.21 0.01 100 / 0.05),
+    0 6px 20px -4px oklch(0.21 0.01 100 / 0.08);
+}
+
+@utility shadow-lift {
+  box-shadow:
+    0 2px 6px oklch(0.21 0.01 100 / 0.06),
+    0 16px 36px -8px oklch(0.21 0.01 100 / 0.13);
+}
+
+@utility shadow-glow-emerald {
+  box-shadow: 0 10px 30px -8px oklch(0.55 0.12 163 / 0.5);
+}
+
+@utility glass {
+  background: color-mix(in oklab, var(--card) 78%, transparent);
+  backdrop-filter: blur(18px) saturate(1.65);
+  -webkit-backdrop-filter: blur(18px) saturate(1.65);
+}
+
+/* Subtle full-page aurora mesh — sits behind the app content */
+@utility aurora-page {
+  background-image:
+    radial-gradient(46rem 30rem at 12% -8%, oklch(0.52 0.115 163 / 0.09), transparent 62%),
+    radial-gradient(38rem 26rem at 105% 4%, oklch(0.70 0.14 75 / 0.08), transparent 58%),
+    radial-gradient(34rem 24rem at 50% 118%, oklch(0.60 0.09 200 / 0.07), transparent 55%);
+}
+
+.dark .aurora-page {
+  background-image:
+    radial-gradient(46rem 30rem at 12% -8%, oklch(0.52 0.115 163 / 0.14), transparent 62%),
+    radial-gradient(38rem 26rem at 105% 4%, oklch(0.70 0.14 75 / 0.07), transparent 58%),
+    radial-gradient(34rem 24rem at 50% 118%, oklch(0.60 0.09 200 / 0.10), transparent 55%);
+}
+
+/* Deep-emerald hero panel (dashboard greeting, login accents) */
+@utility hero-emerald {
+  background:
+    radial-gradient(130% 150% at 88% -10%, oklch(0.62 0.12 175 / 0.55), transparent 55%),
+    radial-gradient(100% 130% at -5% 110%, oklch(0.40 0.08 150 / 0.45), transparent 50%),
+    linear-gradient(158deg, oklch(0.33 0.07 168) 0%, oklch(0.235 0.042 165) 100%);
+  color: oklch(0.985 0.01 95);
+}
+
+/* Light dot grid — decorative texture over dark hero panels */
+@utility dots-grid {
+  background-image: radial-gradient(oklch(1 0 0 / 0.15) 1.1px, transparent 1.1px);
+  background-size: 19px 19px;
+}
+
+/* Gradient text — must use longhand + plain class: the `background`
+   shorthand resets background-clip, and Lightning CSS can strip the
+   clip inside @utility. Plain @layer class passes through untouched. */
+@layer utilities {
+  .text-gradient-emerald {
+    background-image: linear-gradient(120deg, var(--primary), oklch(0.62 0.1 195));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+}
+
+@utility bg-emerald-gradient {
+  background: linear-gradient(145deg, oklch(0.60 0.125 166), oklch(0.50 0.108 175));
+}
+
+/* Interactive card: hover lift with spring-ish ease */
+@utility card-lift {
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.25s;
+}
+.card-lift:hover {
+  transform: translateY(-2px);
+}
+
+/* Respect users who prefer calm */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ============================================================
+   Invoice / quotation print — hide the app, show only the paper (Phase 11)
+   ============================================================ */
+@media print {
+  #app-root,
+  body > iframe,
+  body > .sonner-toast-wrapper,
+  body > .gk-toaster-host,
+  body > [data-sonner-toaster] {
+    display: none !important;
+  }
+  html, body {
+    background: #fff !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+  .invoice-overlay,
+  .quote-overlay {
+    position: static !important;
+    inset: auto !important;
+    background: #fff !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    display: block !important;
+  }
+  .invoice-paper,
+  .quote-paper {
+    box-shadow: none !important;
+    border: none !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+    border-radius: 0 !important;
+    width: 100% !important;
+    print-color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
+}

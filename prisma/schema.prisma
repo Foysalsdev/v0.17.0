@@ -1,0 +1,244 @@
+// গাড়িখাতা (GarirKhata) — production schema
+// Mirrors supabase/migrations/0001_schema.sql (the deployment blueprint).
+// Multi-tenant: every row carries businessId; API routes filter by the
+// session's business (the sandbox stand-in for Supabase RLS).
+// Money = Int (whole Taka). KM = Int. Litres/price = Float.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Business {
+  id          String   @id @default(cuid())
+  name        String
+  ownerName   String
+  phone       String
+  address     String   @default("")
+  plan        String   @default("free") // free | starter | pro
+  tripSeq     Int      @default(0) // last issued trip reference number
+  quoteSeq    Int      @default(0) // last issued quotation reference number
+  createdAt   DateTime @default(now())
+}
+
+// Quotations (Phase 11) — pre-trip price offers. Cloud mirror: public.quotations.
+model Quotation {
+  id          String    @id @default(cuid())
+  businessId  String
+  quoteCode   String    // QT-0001 (per business sequence)
+  customerId  String
+  vehicleId   String?
+  summary     String    @default("") // "ঢাকা → কক্সবাজার, ৩ দিন"
+  rate        Int       @default(0)
+  terms       String?
+  status      String    @default("sent") // draft | sent | accepted | rejected | expired
+  validUntil  DateTime?
+  createdAt   DateTime  @default(now())
+}
+
+model User {
+  id           String    @id @default(cuid())
+  businessId   String
+  name         String
+  phone        String    @unique
+  email        String?   @unique // signup email (account kholar somoy)
+  role         String    @default("staff") // owner | manager | staff | driver | accountant
+  passwordHash String
+  active       Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+
+  sessions Session[]
+}
+
+model Session {
+  token     String   @id
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model Vehicle {
+  id            String   @id @default(cuid())
+  businessId    String
+  name          String // ডাকনাম: "Hiace"
+  regNumber     String
+  brand         String   @default("")
+  model         String   @default("")
+  year          Int      @default(2010)
+  fuelType      String   @default("diesel") // diesel | petrol | cng — multi-fuel = comma-joined ("petrol,cng")
+  transmission  String   @default("manual") // manual | automatic
+  engineCc      Int      @default(0)
+  seats         Int      @default(4)
+  color         String   @default("")
+  currentKm     Int      @default(0)
+  status        String   @default("available") // available | on_trip | maintenance | inactive | for_sale | sold
+  purchasePrice Int      @default(0)
+  currentValue  Int      @default(0)
+  createdAt     DateTime @default(now())
+
+  documents  VehicleDocument[]
+  trips      Trip[]
+  fuelFuel   FuelEntry[]
+  maintItems MaintenanceScheduleItem[]
+  maintLogs  MaintenanceLog[]
+  incomes    IncomeEntry[]
+  expenses   ExpenseEntry[]
+}
+
+model VehicleDocument {
+  id         String   @id @default(cuid())
+  businessId String
+  vehicleId  String
+  vehicle    Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  docType    String // registration | tax_token | fitness | insurance | permit | other
+  docNumber  String   @default("")
+  issueDate  DateTime @default(now())
+  expiryDate DateTime
+  notes      String?
+}
+
+model Customer {
+  id         String    @id @default(cuid())
+  businessId String
+  name       String
+  phone      String    @default("")
+  company    String?
+  address    String?
+  createdAt  DateTime  @default(now())
+
+  trips   Trip[]
+  incomes IncomeEntry[]
+}
+
+model Driver {
+  id            String    @id @default(cuid())
+  businessId    String
+  name          String
+  phone         String    @default("")
+  licenseNo     String    @default("")
+  licenseExpiry DateTime?
+  joiningDate   DateTime  @default(now())
+  salary        Int       @default(0)
+  advance       Int       @default(0)
+  active        Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+
+  trips Trip[]
+}
+
+model Trip {
+  id         String    @id @default(cuid())
+  businessId String
+  ref        String // TR-0001 (per business sequence)
+  customerId String
+  customer   Customer  @relation(fields: [customerId], references: [id])
+  vehicleId  String
+  vehicle    Vehicle   @relation(fields: [vehicleId], references: [id])
+  driverId   String?
+  driver     Driver?   @relation(fields: [driverId], references: [id])
+  from       String
+  to         String
+  startAt    DateTime
+  endAt      DateTime
+  rentalType String    @default("per_trip")
+  fare       Int       @default(0)
+  advance    Int       @default(0)
+  status     String    @default("confirmed") // draft | confirmed | running | completed | cancelled
+  startKm    Int?
+  endKm      Int?
+  notes      String?
+  createdAt  DateTime  @default(now())
+
+  expenses TripExpense[]
+  incomes  IncomeEntry[]
+}
+
+model TripExpense {
+  id         String  @id @default(cuid())
+  businessId String
+  tripId     String
+  trip       Trip    @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  category   String
+  amount     Int     @default(0)
+  notes      String?
+}
+
+model FuelEntry {
+  id            String   @id @default(cuid())
+  businessId    String
+  vehicleId     String
+  vehicle       Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  date          DateTime @default(now())
+  odometerKm    Int      @default(0)
+  litres        Float    @default(0)
+  pricePerLitre Float    @default(0)
+  station       String   @default("")
+  driverId      String?
+}
+
+model MaintenanceScheduleItem {
+  id              String   @id @default(cuid())
+  businessId      String
+  vehicleId       String
+  vehicle         Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  item            String // engine_oil | oil_filter | …
+  lastServiceKm   Int      @default(0)
+  lastServiceDate DateTime @default(now())
+  intervalKm      Int      @default(5000)
+}
+
+model MaintenanceLog {
+  id         String   @id @default(cuid())
+  businessId String
+  vehicleId  String
+  vehicle    Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  item       String
+  date       DateTime @default(now())
+  km         Int      @default(0)
+  cost       Int      @default(0)
+  workshop   String   @default("")
+  notes      String?
+}
+
+model IncomeEntry {
+  id         String    @id @default(cuid())
+  businessId String
+  date       DateTime  @default(now())
+  category   String // rental | extra_km | …
+  customerId String?
+  customer   Customer? @relation(fields: [customerId], references: [id])
+  vehicleId  String?
+  vehicle    Vehicle?  @relation(fields: [vehicleId], references: [id])
+  tripId     String?
+  trip       Trip?     @relation(fields: [tripId], references: [id])
+  amount     Int       @default(0)
+  method     String    @default("cash") // cash | bank | bkash | nagad | card | other
+}
+
+model ExpenseEntry {
+  id         String    @id @default(cuid())
+  businessId String
+  date       DateTime  @default(now())
+  category   String // fuel | maintenance | …
+  vehicleId  String?
+  vehicle    Vehicle?  @relation(fields: [vehicleId], references: [id])
+  amount     Int       @default(0)
+  paidTo     String?
+  method     String    @default("cash")
+}
+
+model Reminder {
+  id         String   @id @default(cuid())
+  businessId String
+  title      String
+  notes      String?
+  tripId     String?
+  dueAt      DateTime
+  done       Boolean  @default(false)
+  createdAt  DateTime @default(now())
+}

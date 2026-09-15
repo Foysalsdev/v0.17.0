@@ -1,0 +1,27 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // গাড়িখাতা — Cloudflare Worker (OpenNext adapter)
+  // GitHub → Cloudflare Workers Builds এই কনফিগ দেখে deploy করে।
+  "name": "garikhata",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2025-09-01",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "observability": {
+    "enabled": true
+  },
+  "vars": {
+    // পাবলিক ভ্যারিয়েবল — publishable key গোপন নয় (client-এ দেখা যায় এমন
+    // ডিজাইন)। রানটাইমে সার্ভার-সাইডও এগুলো পড়ে (cloud-auth/store)।
+    "GK_BACKEND": "supabase",
+    "NEXT_PUBLIC_GK_CLOUD": "1",
+    "NEXT_PUBLIC_SUPABASE_URL": "https://hevlfxmivchefmjvzgxp.supabase.co",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_G20JvHqq_jK7tDYGlbedXg_IUK4OL_X"
+  }
+  // বিল্ড-টাইমে (Cloudflare → Workers Builds → Settings → Build variables)
+  // একই NEXT_PUBLIC_* দুটি সেট করতে হবে — না হলে client bundle-এ inline
+  // হবে না। মানগুলো উপরেই আছে (copy-paste করুন)।
+}
